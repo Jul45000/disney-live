@@ -11,12 +11,13 @@
 @media(prefers-color-scheme:dark){:root{--bg:#0f1226;--card:#191d38;--txt:#eef0fa;--mut:#99a0c4;--line:#2a2f52;--brand:#0b1030;
 --gb:#143a28;--ob:#47310f;--rb:#481c1c}}
 *{box-sizing:border-box}
-body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);padding-bottom:40px}
+body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);padding-bottom:90px}
+button{font-family:inherit}
 header{background:var(--brand);color:#fff;padding:14px 16px 10px;position:sticky;top:0;z-index:5}
 h1{margin:0;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 h1 small{font-weight:400;opacity:.75;font-size:12px}
 .tabs{display:flex;gap:6px;margin-top:10px}
-.tabs button{flex:1;border:0;padding:9px 6px;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font:600 13px inherit;cursor:pointer}
+.tabs button{flex:1;border:0;padding:9px 6px;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-weight:600;font-size:13px;cursor:pointer}
 .tabs button.on{background:var(--acc);color:#1b2a5c}
 .sub{display:flex;gap:6px;margin-top:8px}
 .sub button{flex:1;border:1px solid rgba(255,255,255,.25);background:none;color:#fff;padding:6px;border-radius:8px;font-size:13px;cursor:pointer}
@@ -26,13 +27,22 @@ input[type=search]{width:100%;padding:10px 12px;border-radius:10px;border:1px so
 .stats{display:flex;gap:8px;margin-bottom:10px}
 .stat{flex:1;background:var(--card);border-radius:12px;padding:8px 10px;border:1px solid var(--line)}
 .stat b{font-size:20px;display:block}.stat span{font-size:12px;color:var(--mut)}
-.row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.mine{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:10px;font-size:13px}
+.mine .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chip{border:1px solid var(--acc);background:none;color:var(--txt);border-radius:99px;padding:4px 10px;font-size:13px;cursor:pointer}
+.wl{border:1px solid var(--line);background:none;color:var(--txt);border-radius:8px;padding:5px 9px;font-size:13px;cursor:pointer}
+.wl.on{background:var(--acc);color:#1b2a5c;border-color:var(--acc);font-weight:700}
+.note{color:var(--mut);font-size:12px;margin-top:6px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
 .row .n{flex:1;min-width:0}
 .row .n div{font-weight:600;overflow-wrap:anywhere}
 .row .n small{color:var(--mut);font-size:12px}
 .badge{min-width:62px;text-align:center;border-radius:10px;padding:6px 8px;font-weight:700;font-size:16px}
 .badge small{display:block;font-size:10px;font-weight:600;opacity:.8}
+.bell{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:10px;padding:8px 8px;font-size:13px;min-width:50px;cursor:pointer}
+.bell.on{background:var(--acc);color:#1b2a5c;border-color:var(--acc);font-weight:700}
 .g{background:var(--gb);color:var(--g)}.o{background:var(--ob);color:var(--o)}.r{background:var(--rb);color:var(--r)}.x{background:var(--line);color:var(--mut)}
+.row .n small.up{color:var(--r);font-weight:600}.row .n small.dn{color:var(--g);font-weight:600}
 .times{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .t{padding:3px 9px;border-radius:99px;background:var(--line);font-size:13px;font-weight:600}
 .t.next{background:var(--acc);color:#1b2a5c}.t.past{opacity:.45;text-decoration:line-through}
@@ -40,6 +50,19 @@ input[type=search]{width:100%;padding:10px 12px;border-radius:10px;border:1px so
 .msg{text-align:center;color:var(--mut);padding:30px 10px}
 .err{background:var(--rb);color:var(--r);border-radius:12px;padding:12px;margin-bottom:10px}
 footer{text-align:center;color:var(--mut);font-size:11px;margin-top:14px;padding:0 14px}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;z-index:20}
+#sheet[hidden],#ban[hidden]{display:none}
+.box{background:var(--card);width:100%;max-width:720px;margin:auto;border-radius:16px 16px 0 0;padding:16px}
+.box h3{margin:0 0 2px;font-size:17px}
+.box p{margin:0 0 10px;color:var(--mut);font-size:13px}
+.box label{font-size:13px;font-weight:600;display:block;margin-bottom:6px}
+.box .qs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.box input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:18px}
+.btns{display:flex;gap:8px;margin-top:12px}
+.btns button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--txt);font-size:14px;font-weight:600;cursor:pointer}
+.btns .ok{background:var(--acc);color:#1b2a5c;border-color:var(--acc)}
+#ban{position:fixed;left:8px;right:8px;bottom:8px;z-index:30;background:var(--acc);color:#1b2a5c;border-radius:14px;padding:12px;font-weight:600;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+#ban button{margin-top:8px;width:100%;padding:9px;border:0;border-radius:10px;background:#1b2a5c;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -58,26 +81,122 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:14px;padding
   <div id="err"></div>
   <input type="search" id="q" placeholder="Rechercher…" aria-label="Rechercher">
   <div class="stats" id="stats"></div>
+  <div id="mine"></div>
   <div id="list"><div class="msg">Chargement…</div></div>
   <footer>Données en direct : ThemeParks.wiki · actualisation automatique toutes les 60 s · application non officielle, sans lien avec Disney.</footer>
 </main>
+
+<div id="sheet" hidden>
+  <div class="box">
+    <h3 id="sn"></h3>
+    <p id="sc"></p>
+    <label for="sv">M'alerter quand l'attente est de … min ou moins</label>
+    <div class="qs" id="qs"></div>
+    <input type="number" id="sv" min="0" max="240" step="5" inputmode="numeric">
+    <div class="btns">
+      <button id="scl">Annuler</button>
+      <button id="sdel">Supprimer</button>
+      <button id="sok" class="ok">Activer</button>
+    </div>
+    <p class="note">L'alerte ne marche que si cette page reste ouverte avec l'écran allumé.</p>
+  </div>
+</div>
+<div id="ban" hidden><div id="bant"></div><button id="banok">OK</button></div>
+
 <script>
 const DEST='e8d0207f-da8a-4048-bec8-117aa946b2c2';
 const API='https://api.themeparks.wiki/v1/entity/'+DEST+'/live';
-let park='dae968d5-630d-4719-8b06-3d107e944401',view='waits',data=[],lastOk=null;
+const LS='dlp-live-v2';
+let park='dae968d5-630d-4719-8b06-3d107e944401',view='waits',data=[],wakeOn=false,wake=null,sheetId=null,pending=[];
+let store={hist:{},alerts:{}};
+try{const s=JSON.parse(localStorage.getItem(LS)||'{}');store.hist=s.hist||{};store.alerts=s.alerts||{}}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}};
 
 const $=s=>document.querySelector(s);
 const hm=d=>d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const waitOf=a=>a.status==='OPERATING'&&a.queue&&a.queue.STANDBY&&a.queue.STANDBY.waitTime!=null?a.queue.STANDBY.waitTime:null;
 
+/* ---------- Son / alerte ---------- */
+let ac=null;
+function unlock(){
+  try{
+    if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+  }catch(e){}
+}
+function beep(){
+  try{
+    if(!ac)return;
+    [0,0.35,0.7].forEach(t=>{
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.type='sine';o.frequency.value=880;
+      g.gain.setValueAtTime(0.0001,ac.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(0.4,ac.currentTime+t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+t+0.25);
+      o.connect(g);g.connect(ac.destination);
+      o.start(ac.currentTime+t);o.stop(ac.currentTime+t+0.3);
+    });
+  }catch(e){}
+}
+function fire(name,w,t){
+  const msg='🎢 '+name+' : '+w+' min (cible ≤ '+t+' min)';
+  pending.push(msg);
+  $('#bant').innerHTML=pending.map(esc).join('<br>');
+  $('#ban').hidden=false;
+  beep();
+  try{if(navigator.vibrate)navigator.vibrate([300,150,300,150,300])}catch(e){}
+  try{if('Notification' in window&&Notification.permission==='granted')new Notification('Attente atteinte',{body:msg})}catch(e){}
+}
+$('#banok').onclick=()=>{pending=[];$('#ban').hidden=true};
+
+function checkAlerts(){
+  Object.keys(store.alerts).forEach(id=>{
+    const al=store.alerts[id],a=data.find(x=>x.id===id);
+    if(!a)return;
+    const w=waitOf(a);
+    if(w==null)return;
+    if(w<=al.t){if(!al.fired){al.fired=true;fire(a.name,w,al.t)}}
+    else al.fired=false;
+  });
+  save();
+}
+
+/* ---------- Tendance ---------- */
+function track(){
+  const now=Date.now();
+  data.forEach(a=>{
+    if(a.entityType!=='ATTRACTION')return;
+    const w=waitOf(a),h=store.hist[a.id];
+    if(w==null){delete store.hist[a.id];return}
+    if(!h||now-h.seen>2*3600000){store.hist[a.id]={w:w,seen:now,first:now,d:0,at:now};return}
+    if(w!==h.w){h.d=w-h.w;h.at=now;h.w=w}
+    h.seen=now;
+  });
+  save();
+}
+function trendHtml(id){
+  const h=store.hist[id];
+  if(!h)return '';
+  const now=Date.now(),age=now-h.at;
+  if(h.d&&age<90*60000){
+    const m=Math.round(age/60000),when=m<1?'à l\'instant':'depuis '+m+' min';
+    return h.d>0?'<small class="up">▲ +'+h.d+' min '+when+'</small>':'<small class="dn">▼ '+h.d+' min '+when+'</small>';
+  }
+  if(now-h.first<5*60000)return '';
+  return '<small>➜ stable</small>';
+}
+
+/* ---------- Données ---------- */
 async function load(){
   try{
     const r=await fetch(API,{cache:'no-store'});
     if(!r.ok)throw new Error('HTTP '+r.status);
     const j=await r.json();
-    data=j.liveData||[];lastOk=new Date();
+    data=j.liveData||[];
     $('#err').innerHTML='';
-    $('#upd').textContent='maj '+hm(lastOk);
+    $('#upd').textContent='maj '+hm(new Date());
+    track();checkAlerts();
   }catch(e){
     $('#err').innerHTML='<div class="err">Impossible de récupérer les données en direct ('+esc(e.message)+'). '+
       (data.length?'Affichage des dernières données reçues.':'Vérifiez votre connexion.')+'</div>';
@@ -89,29 +208,30 @@ function cls(w){return w<=20?'g':w<=45?'o':'r'}
 
 function renderWaits(items,q){
   const att=items.filter(i=>i.entityType==='ATTRACTION'&&i.name.toLowerCase().includes(q));
-  const info=a=>{
-    const w=a.queue&&a.queue.STANDBY?a.queue.STANDBY.waitTime:null;
-    return{a,w,open:a.status==='OPERATING'};
-  };
-  const l=att.map(info).sort((x,y)=>(y.open-x.open)||((y.w??-1)-(x.w??-1))||x.a.name.localeCompare(y.a.name));
+  const l=att.map(a=>({a:a,w:waitOf(a),open:a.status==='OPERATING'}))
+    .sort((x,y)=>(y.open-x.open)||((y.w==null?-1:y.w)-(x.w==null?-1:x.w))||x.a.name.localeCompare(y.a.name));
   const withW=l.filter(x=>x.open&&x.w!=null);
   const avg=withW.length?Math.round(withW.reduce((s,x)=>s+x.w,0)/withW.length):0;
-  const max=withW.length?Math.max(...withW.map(x=>x.w)):0;
+  const max=withW.length?Math.max.apply(null,withW.map(x=>x.w)):0;
   $('#stats').innerHTML=
-    `<div class="stat"><b>${l.filter(x=>x.open).length}/${l.length}</b><span>ouvertes</span></div>`+
-    `<div class="stat"><b>${avg} min</b><span>attente moyenne</span></div>`+
-    `<div class="stat"><b>${max} min</b><span>attente max</span></div>`;
+    '<div class="stat"><b>'+l.filter(x=>x.open).length+'/'+l.length+'</b><span>ouvertes</span></div>'+
+    '<div class="stat"><b>'+avg+' min</b><span>attente moyenne</span></div>'+
+    '<div class="stat"><b>'+max+' min</b><span>attente max</span></div>';
   if(!l.length)return '<div class="msg">Aucune attraction.</div>';
-  return l.map(({a,w,open})=>{
-    let b,sub='';
-    if(!open){b=`<div class="badge x">${a.status==='DOWN'?'Panne':a.status==='REFURBISHMENT'?'Rénov.':'Fermée'}</div>`}
-    else if(w==null){b=`<div class="badge x">Ouverte<small>sans attente</small></div>`}
-    else b=`<div class="badge ${cls(w)}">${w}<small>min</small></div>`;
+  return l.map(x=>{
+    const a=x.a,w=x.w,open=x.open;
+    let b;
+    if(!open)b='<div class="badge x">'+(a.status==='DOWN'?'Panne':a.status==='REFURBISHMENT'?'Rénov.':'Fermée')+'</div>';
+    else if(w==null)b='<div class="badge x">Ouverte<small>sans attente</small></div>';
+    else b='<div class="badge '+cls(w)+'">'+w+'<small>min</small></div>';
+    const parts=[];
+    const tr=open?trendHtml(a.id):'';
+    if(tr)parts.push(tr);
     const sr=a.queue&&a.queue.SINGLE_RIDER&&a.queue.SINGLE_RIDER.waitTime;
-    if(open&&sr!=null)sub=`<small>Single rider : ${sr} min</small>`;
-    const pr=a.queue&&a.queue.PAID_RETURN_TIME;
-    if(pr&&pr.state==='AVAILABLE')sub+=` <small>· Premier Access${pr.price?' '+(pr.price.amount/100).toFixed(2)+' €':''}</small>`;
-    return `<div class="row"><div class="n"><div>${esc(a.name)}</div>${sub}</div>${b}</div>`;
+    if(open&&sr!=null)parts.push('<small>Single rider : '+sr+' min</small>');
+    const al=store.alerts[a.id];
+    const bell='<button class="bell'+(al?' on':'')+'" data-id="'+a.id+'" aria-label="Alerte">'+(al?'🔔 ≤'+al.t:'🔕')+'</button>';
+    return '<div class="row"><div class="n"><div>'+esc(a.name)+'</div>'+parts.join('<br>')+'</div>'+b+bell+'</div>';
   }).join('');
 }
 
@@ -123,32 +243,86 @@ function renderShows(items,q){
     const ts=(s.showtimes||[]).filter(t=>new Date(t.startTime).toLocaleDateString('fr-CA',{timeZone:'Europe/Paris'})===todayStr)
       .map(t=>({s:new Date(t.startTime),e:t.endTime?new Date(t.endTime):null})).sort((a,b)=>a.s-b.s);
     const nxt=ts.find(t=>(t.e||t.s)>now);
-    return{s,ts,nxt};
+    return{s:s,ts:ts,nxt:nxt};
   }).filter(x=>x.ts.length||x.s.status==='OPERATING'||x.s.status==='CLOSED');
   rows.sort((a,b)=>(b.ts.length>0)-(a.ts.length>0)||((a.nxt?a.nxt.s:9e15)-(b.nxt?b.nxt.s:9e15)));
   const upcoming=rows.filter(x=>x.nxt).length;
   $('#stats').innerHTML=
-    `<div class="stat"><b>${rows.filter(x=>x.ts.length).length}</b><span>spectacles aujourd'hui</span></div>`+
-    `<div class="stat"><b>${upcoming}</b><span>encore à venir</span></div>`;
+    '<div class="stat"><b>'+rows.filter(x=>x.ts.length).length+'</b><span>spectacles aujourd\'hui</span></div>'+
+    '<div class="stat"><b>'+upcoming+'</b><span>encore à venir</span></div>';
   if(!rows.length)return '<div class="msg">Aucun spectacle programmé.</div>';
-  return rows.map(({s,ts,nxt})=>{
-    const chips=ts.length?ts.map(t=>{
+  return rows.map(x=>{
+    const chips=x.ts.length?x.ts.map(t=>{
       const past=(t.e||t.s)<now;
-      const c=nxt&&t.s===nxt.s?'next':past?'past':'';
-      return `<span class="t ${c}">${hm(t.s)}</span>`;
+      const c=x.nxt&&t.s===x.nxt.s?'next':past?'past':'';
+      return '<span class="t '+c+'">'+hm(t.s)+'</span>';
     }).join(''):'<span class="t">Pas d\'horaire aujourd\'hui</span>';
-    return `<div class="row show"><div style="font-weight:600">${esc(s.name)}</div>`+
-      `<div class="times">${chips}</div></div>`;
+    return '<div class="row show"><div style="font-weight:600">'+esc(x.s.name)+'</div><div class="times">'+chips+'</div></div>';
   }).join('');
+}
+
+function renderMine(){
+  if(view!=='waits'){$('#mine').innerHTML='';return}
+  const ids=Object.keys(store.alerts);
+  const chips=ids.map(id=>'<button class="chip" data-id="'+id+'">🔔 '+esc(store.alerts[id].name)+' ≤ '+store.alerts[id].t+' min</button>').join('');
+  $('#mine').innerHTML='<div class="mine">'+
+    (ids.length?'<b>Mes alertes</b><div class="chips">'+chips+'</div>':'<span>Appuyez sur 🔕 à côté d\'une attraction pour être alerté quand son attente passe sous un temps cible.</span>')+
+    '<div><button class="wl'+(wakeOn?' on':'')+'" id="wl">'+(wakeOn?'☀️ Écran maintenu allumé':'☀️ Garder l\'écran allumé')+'</button></div>'+
+    '<div class="note">Les alertes ne fonctionnent que si cette page reste ouverte.</div></div>';
 }
 
 function render(){
   const q=$('#q').value.trim().toLowerCase();
   const items=data.filter(i=>i.parkId===park);
+  renderMine();
   if(!data.length){$('#list').innerHTML='<div class="msg">Aucune donnée.</div>';$('#stats').innerHTML='';return}
   $('#list').innerHTML=view==='waits'?renderWaits(items,q):renderShows(items,q);
 }
 
+/* ---------- Fenêtre d'alerte ---------- */
+function openSheet(id){
+  const a=data.find(x=>x.id===id),al=store.alerts[id];
+  sheetId=id;
+  const w=a?waitOf(a):null;
+  $('#sn').textContent=a?a.name:(al?al.name:'');
+  $('#sc').textContent=w!=null?'Attente actuelle : '+w+' min':'Attente actuelle : indisponible';
+  $('#sv').value=al?al.t:(w!=null?Math.max(5,Math.round((w-10)/5)*5):15);
+  $('#qs').innerHTML=[10,15,20,30,45,60].map(n=>'<button class="chip" data-n="'+n+'">'+n+' min</button>').join('');
+  $('#sdel').style.display=al?'':'none';
+  $('#sheet').hidden=false;
+}
+$('#qs').onclick=e=>{const b=e.target.closest('[data-n]');if(b)$('#sv').value=b.dataset.n};
+$('#scl').onclick=()=>{$('#sheet').hidden=true};
+$('#sdel').onclick=()=>{delete store.alerts[sheetId];save();$('#sheet').hidden=true;render()};
+$('#sok').onclick=()=>{
+  const t=parseInt($('#sv').value,10);
+  if(isNaN(t)||t<0)return;
+  const a=data.find(x=>x.id===sheetId);
+  unlock();
+  try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}
+  store.alerts[sheetId]={t:t,fired:false,name:a?a.name:(store.alerts[sheetId]?store.alerts[sheetId].name:'')};
+  save();$('#sheet').hidden=true;checkAlerts();render();
+};
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')$('#sheet').hidden=true};
+
+/* ---------- Écran allumé ---------- */
+async function setWake(on){
+  try{
+    if(on){wake=await navigator.wakeLock.request('screen');wakeOn=true}
+    else{if(wake)await wake.release();wake=null;wakeOn=false}
+  }catch(e){wakeOn=false;alert('Impossible de garder l\'écran allumé sur ce navigateur.')}
+  render();
+}
+
+/* ---------- Événements ---------- */
+document.addEventListener('click',e=>{
+  unlock();
+  const bell=e.target.closest('.bell');
+  if(bell){openSheet(bell.dataset.id);return}
+  const chip=e.target.closest('#mine .chip');
+  if(chip){openSheet(chip.dataset.id);return}
+  if(e.target.closest('#wl'))setWake(!wakeOn);
+});
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
   b.classList.add('on');park=b.dataset.park;render();
@@ -158,8 +332,10 @@ document.querySelectorAll('.sub button').forEach(b=>b.onclick=()=>{
   b.classList.add('on');view=b.dataset.v;render();
 });
 $('#q').oninput=render;
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
-load();setInterval(()=>{if(!document.hidden)load()},60000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden){load();if(wakeOn)setWake(true)}
+});
+load();setInterval(load,60000);
 </script>
 </body>
 </html>
