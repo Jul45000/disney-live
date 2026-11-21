@@ -61,6 +61,13 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:14px;padding
 .btns{display:flex;gap:8px;margin-top:12px}
 .btns button{flex:1;padding:11px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--txt);font-size:14px;font-weight:600;cursor:pointer}
 .btns .ok{background:var(--acc);color:#1b2a5c;border-color:var(--acc)}
+details.mine summary{cursor:pointer;font-weight:700}
+details.mine summary span{font-weight:400;color:var(--mut);margin-left:4px}
+.cb{margin-top:8px}
+.cb p{margin:8px 0 4px;color:var(--txt)}
+.cb code{background:var(--line);border-radius:6px;padding:3px 6px;font-size:13px;word-break:break-all;display:inline-block;margin-bottom:6px}
+.cb input{width:100%;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:14px;margin-bottom:6px}
+.cb .wl{margin-right:6px}
 #ban{position:fixed;left:8px;right:8px;bottom:8px;z-index:30;background:var(--acc);color:#1b2a5c;border-radius:14px;padding:12px;font-weight:600;box-shadow:0 4px 18px rgba(0,0,0,.35)}
 #ban button{margin-top:8px;width:100%;padding:9px;border:0;border-radius:10px;background:#1b2a5c;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
 </style>
@@ -81,6 +88,19 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:14px;padding
   <div id="err"></div>
   <input type="search" id="q" placeholder="Rechercher…" aria-label="Rechercher">
   <div class="stats" id="stats"></div>
+  <details id="cloud" class="mine">
+    <summary>🔔 Notifications écran éteint <span id="cst"></span></summary>
+    <div class="cb">
+      <p>1) Installez l'appli gratuite <b>ntfy</b>, appuyez sur + et abonnez-vous à ce sujet :</p>
+      <code id="ctopic"></code><br>
+      <button class="wl" id="ccopy">Copier le sujet</button>
+      <p>2) Collez l'adresse de votre service Cloudflare :</p>
+      <input type="url" id="curl" placeholder="https://xxx.workers.dev" autocapitalize="off" autocomplete="off">
+      <button class="wl" id="csave">Enregistrer</button>
+      <button class="wl" id="ctest">Envoyer un test</button>
+      <div class="note" id="cmsg"></div>
+    </div>
+  </details>
   <div id="mine"></div>
   <div id="list"><div class="msg">Chargement…</div></div>
   <footer>Données en direct : ThemeParks.wiki · actualisation automatique toutes les 60 s · application non officielle, sans lien avec Disney.</footer>
@@ -98,7 +118,7 @@ footer{text-align:center;color:var(--mut);font-size:11px;margin-top:14px;padding
       <button id="sdel">Supprimer</button>
       <button id="sok" class="ok">Activer</button>
     </div>
-    <p class="note">L'alerte ne marche que si cette page reste ouverte avec l'écran allumé.</p>
+    <p class="note">Sans le service « Notifications écran éteint », l'alerte ne marche que si cette page reste ouverte.</p>
   </div>
 </div>
 <div id="ban" hidden><div id="bant"></div><button id="banok">OK</button></div>
@@ -108,8 +128,8 @@ const DEST='e8d0207f-da8a-4048-bec8-117aa946b2c2';
 const API='https://api.themeparks.wiki/v1/entity/'+DEST+'/live';
 const LS='dlp-live-v2';
 let park='dae968d5-630d-4719-8b06-3d107e944401',view='waits',data=[],wakeOn=false,wake=null,sheetId=null,pending=[];
-let store={hist:{},alerts:{}};
-try{const s=JSON.parse(localStorage.getItem(LS)||'{}');store.hist=s.hist||{};store.alerts=s.alerts||{}}catch(e){}
+let store={hist:{},alerts:{},cfg:{topic:'',url:''}};
+try{const s=JSON.parse(localStorage.getItem(LS)||'{}');store.hist=s.hist||{};store.alerts=s.alerts||{};store.cfg=Object.assign({topic:'',url:''},s.cfg||{})}catch(e){}
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify(store))}catch(e){}};
 
 const $=s=>document.querySelector(s);
@@ -196,7 +216,7 @@ async function load(){
     data=j.liveData||[];
     $('#err').innerHTML='';
     $('#upd').textContent='maj '+hm(new Date());
-    track();checkAlerts();
+    track();checkAlerts();syncCloud(false);
   }catch(e){
     $('#err').innerHTML='<div class="err">Impossible de récupérer les données en direct ('+esc(e.message)+'). '+
       (data.length?'Affichage des dernières données reçues.':'Vérifiez votre connexion.')+'</div>';
@@ -268,7 +288,7 @@ function renderMine(){
   $('#mine').innerHTML='<div class="mine">'+
     (ids.length?'<b>Mes alertes</b><div class="chips">'+chips+'</div>':'<span>Appuyez sur 🔕 à côté d\'une attraction pour être alerté quand son attente passe sous un temps cible.</span>')+
     '<div><button class="wl'+(wakeOn?' on':'')+'" id="wl">'+(wakeOn?'☀️ Écran maintenu allumé':'☀️ Garder l\'écran allumé')+'</button></div>'+
-    '<div class="note">Les alertes ne fonctionnent que si cette page reste ouverte.</div></div>';
+    '<div class="note">'+(store.cfg.url?'Les alertes sont aussi surveillées par votre service, écran éteint.':'Sans le service de notifications, les alertes ne fonctionnent que si cette page reste ouverte.')+'</div></div>';
 }
 
 function render(){
@@ -293,7 +313,7 @@ function openSheet(id){
 }
 $('#qs').onclick=e=>{const b=e.target.closest('[data-n]');if(b)$('#sv').value=b.dataset.n};
 $('#scl').onclick=()=>{$('#sheet').hidden=true};
-$('#sdel').onclick=()=>{delete store.alerts[sheetId];save();$('#sheet').hidden=true;render()};
+$('#sdel').onclick=()=>{delete store.alerts[sheetId];save();$('#sheet').hidden=true;render();syncCloud(true)};
 $('#sok').onclick=()=>{
   const t=parseInt($('#sv').value,10);
   if(isNaN(t)||t<0)return;
@@ -301,7 +321,7 @@ $('#sok').onclick=()=>{
   unlock();
   try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}
   store.alerts[sheetId]={t:t,fired:false,name:a?a.name:(store.alerts[sheetId]?store.alerts[sheetId].name:'')};
-  save();$('#sheet').hidden=true;checkAlerts();render();
+  save();$('#sheet').hidden=true;checkAlerts();render();syncCloud(true);
 };
 $('#sheet').onclick=e=>{if(e.target.id==='sheet')$('#sheet').hidden=true};
 
@@ -312,6 +332,59 @@ async function setWake(on){
     else{if(wake)await wake.release();wake=null;wakeOn=false}
   }catch(e){wakeOn=false;alert('Impossible de garder l\'écran allumé sur ce navigateur.')}
   render();
+}
+
+/* ---------- Notifications écran éteint (Cloudflare + ntfy) ---------- */
+function topic(){
+  if(!store.cfg.topic){
+    const a=new Uint8Array(16);
+    try{crypto.getRandomValues(a)}catch(e){for(let i=0;i<16;i++)a[i]=Math.floor(Math.random()*256)}
+    store.cfg.topic='dlp-'+Array.from(a,x=>(x%36).toString(36)).join('');
+    save();
+  }
+  return store.cfg.topic;
+}
+function cmsg(t){$('#cmsg').textContent=t}
+function cstat(){$('#cst').textContent=store.cfg.url?(cloudOk?'✅ actif':'⚠️ à vérifier'):'(à configurer)'}
+let cloudOk=false,lastSig='',lastAt=0;
+async function cloud(path,body){
+  const r=await fetch(store.cfg.url.replace(/\/+$/,'')+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({topic:topic()},body))});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return r.json();
+}
+async function syncCloud(force){
+  if(!store.cfg.url)return;
+  const al={};
+  Object.keys(store.alerts).forEach(id=>{al[id]={t:store.alerts[id].t,name:store.alerts[id].name}});
+  const sig=JSON.stringify(al);
+  if(!force&&sig===lastSig&&Date.now()-lastAt<30*60000)return;
+  try{
+    const r=await cloud('/sync',{alerts:al});
+    lastSig=sig;lastAt=Date.now();cloudOk=true;
+    cmsg('Service connecté ('+r.count+' alerte'+(r.count>1?'s':'')+' surveillée'+(r.count>1?'s':'')+').');
+  }catch(e){cloudOk=false;cmsg('Service injoignable : '+e.message)}
+  cstat();
+}
+function initCloud(){
+  $('#ctopic').textContent=topic();
+  $('#curl').value=store.cfg.url;
+  cstat();
+  $('#ccopy').onclick=async()=>{
+    try{await navigator.clipboard.writeText(topic());cmsg('Sujet copié.')}
+    catch(e){cmsg('Copie impossible : appuyez longuement sur le sujet pour le copier.')}
+  };
+  $('#csave').onclick=async()=>{
+    const u=$('#curl').value.trim();
+    if(u&&!/^https:\/\//.test(u)){cmsg('L\'adresse doit commencer par https://');return}
+    store.cfg.url=u;save();
+    if(!u){cloudOk=false;cmsg('Service désactivé.');cstat();render();return}
+    await syncCloud(true);render();
+  };
+  $('#ctest').onclick=async()=>{
+    if(!store.cfg.url){cmsg('Enregistrez d\'abord l\'adresse du service.');return}
+    try{await cloud('/test',{});cmsg('Test envoyé : regardez votre téléphone (appli ntfy abonnée au sujet).')}
+    catch(e){cmsg('Échec du test : '+e.message)}
+  };
 }
 
 /* ---------- Événements ---------- */
@@ -335,6 +408,7 @@ $('#q').oninput=render;
 document.addEventListener('visibilitychange',()=>{
   if(!document.hidden){load();if(wakeOn)setWake(true)}
 });
+initCloud();
 load();setInterval(load,60000);
 </script>
 </body>
