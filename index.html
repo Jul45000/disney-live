@@ -129,3 +129,37 @@ function renderShows(items,q){
   const upcoming=rows.filter(x=>x.nxt).length;
   $('#stats').innerHTML=
     `<div class="stat"><b>${rows.filter(x=>x.ts.length).length}</b><span>spectacles aujourd'hui</span></div>`+
+    `<div class="stat"><b>${upcoming}</b><span>encore à venir</span></div>`;
+  if(!rows.length)return '<div class="msg">Aucun spectacle programmé.</div>';
+  return rows.map(({s,ts,nxt})=>{
+    const chips=ts.length?ts.map(t=>{
+      const past=(t.e||t.s)<now;
+      const c=nxt&&t.s===nxt.s?'next':past?'past':'';
+      return `<span class="t ${c}">${hm(t.s)}</span>`;
+    }).join(''):'<span class="t">Pas d\'horaire aujourd\'hui</span>';
+    return `<div class="row show"><div style="font-weight:600">${esc(s.name)}</div>`+
+      `<div class="times">${chips}</div></div>`;
+  }).join('');
+}
+
+function render(){
+  const q=$('#q').value.trim().toLowerCase();
+  const items=data.filter(i=>i.parkId===park);
+  if(!data.length){$('#list').innerHTML='<div class="msg">Aucune donnée.</div>';$('#stats').innerHTML='';return}
+  $('#list').innerHTML=view==='waits'?renderWaits(items,q):renderShows(items,q);
+}
+
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');park=b.dataset.park;render();
+});
+document.querySelectorAll('.sub button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.sub button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');view=b.dataset.v;render();
+});
+$('#q').oninput=render;
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
+load();setInterval(()=>{if(!document.hidden)load()},60000);
+</script>
+</body>
+</html>
