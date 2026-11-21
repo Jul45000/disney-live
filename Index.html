@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b2a5c">
+<title>Disneyland Paris – Live</title>
+<style>
+:root{--bg:#f4f5fa;--card:#fff;--txt:#161a2e;--mut:#6b7190;--line:#e3e6f1;--brand:#1b2a5c;--acc:#e0a526;
+--g:#1f9d55;--o:#e08a1e;--r:#d6423f;--gb:#e3f5ea;--ob:#fdf0dc;--rb:#fbe5e4}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1226;--card:#191d38;--txt:#eef0fa;--mut:#99a0c4;--line:#2a2f52;--brand:#0b1030;
+--gb:#143a28;--ob:#47310f;--rb:#481c1c}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);padding-bottom:40px}
+header{background:var(--brand);color:#fff;padding:14px 16px 10px;position:sticky;top:0;z-index:5}
+h1{margin:0;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1 small{font-weight:400;opacity:.75;font-size:12px}
+.tabs{display:flex;gap:6px;margin-top:10px}
+.tabs button{flex:1;border:0;padding:9px 6px;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font:600 13px inherit;cursor:pointer}
+.tabs button.on{background:var(--acc);color:#1b2a5c}
+.sub{display:flex;gap:6px;margin-top:8px}
+.sub button{flex:1;border:1px solid rgba(255,255,255,.25);background:none;color:#fff;padding:6px;border-radius:8px;font-size:13px;cursor:pointer}
+.sub button.on{background:#fff;color:var(--brand)}
+main{padding:12px 12px 0;max-width:720px;margin:auto}
+input[type=search]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:15px;margin-bottom:10px}
+.stats{display:flex;gap:8px;margin-bottom:10px}
+.stat{flex:1;background:var(--card);border-radius:12px;padding:8px 10px;border:1px solid var(--line)}
+.stat b{font-size:20px;display:block}.stat span{font-size:12px;color:var(--mut)}
+.row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.row .n{flex:1;min-width:0}
+.row .n div{font-weight:600;overflow-wrap:anywhere}
+.row .n small{color:var(--mut);font-size:12px}
+.badge{min-width:62px;text-align:center;border-radius:10px;padding:6px 8px;font-weight:700;font-size:16px}
+.badge small{display:block;font-size:10px;font-weight:600;opacity:.8}
+.g{background:var(--gb);color:var(--g)}.o{background:var(--ob);color:var(--o)}.r{background:var(--rb);color:var(--r)}.x{background:var(--line);color:var(--mut)}
+.times{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.t{padding:3px 9px;border-radius:99px;background:var(--line);font-size:13px;font-weight:600}
+.t.next{background:var(--acc);color:#1b2a5c}.t.past{opacity:.45;text-decoration:line-through}
+.show{display:block}
+.msg{text-align:center;color:var(--mut);padding:30px 10px}
+.err{background:var(--rb);color:var(--r);border-radius:12px;padding:12px;margin-bottom:10px}
+footer{text-align:center;color:var(--mut);font-size:11px;margin-top:14px;padding:0 14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏰 Disneyland Paris <small id="upd">…</small></h1>
+  <div class="tabs">
+    <button data-park="dae968d5-630d-4719-8b06-3d107e944401" class="on">Disneyland Park</button>
+    <button data-park="ca888437-ebb4-4d50-aed2-d227f7096968">Disney Adventure World</button>
+  </div>
+  <div class="sub">
+    <button data-v="waits" class="on">⏱ Attentes</button>
+    <button data-v="shows">🎭 Spectacles</button>
+  </div>
+</header>
+<main>
+  <div id="err"></div>
+  <input type="search" id="q" placeholder="Rechercher…" aria-label="Rechercher">
+  <div class="stats" id="stats"></div>
+  <div id="list"><div class="msg">Chargement…</div></div>
+  <footer>Données en direct : ThemeParks.wiki · actualisation automatique toutes les 60 s · application non officielle, sans lien avec Disney.</footer>
+</main>
+<script>
+const DEST='e8d0207f-da8a-4048-bec8-117aa946b2c2';
+const API='https://api.themeparks.wiki/v1/entity/'+DEST+'/live';
+let park='dae968d5-630d-4719-8b06-3d107e944401',view='waits',data=[],lastOk=null;
+
+const $=s=>document.querySelector(s);
+const hm=d=>d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function load(){
+  try{
+    const r=await fetch(API,{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    data=j.liveData||[];lastOk=new Date();
+    $('#err').innerHTML='';
+    $('#upd').textContent='maj '+hm(lastOk);
+  }catch(e){
+    $('#err').innerHTML='<div class="err">Impossible de récupérer les données en direct ('+esc(e.message)+'). '+
+      (data.length?'Affichage des dernières données reçues.':'Vérifiez votre connexion.')+'</div>';
+  }
+  render();
+}
+
+function cls(w){return w<=20?'g':w<=45?'o':'r'}
+
+function renderWaits(items,q){
+  const att=items.filter(i=>i.entityType==='ATTRACTION'&&i.name.toLowerCase().includes(q));
+  const info=a=>{
+    const w=a.queue&&a.queue.STANDBY?a.queue.STANDBY.waitTime:null;
+    return{a,w,open:a.status==='OPERATING'};
+  };
+  const l=att.map(info).sort((x,y)=>(y.open-x.open)||((y.w??-1)-(x.w??-1))||x.a.name.localeCompare(y.a.name));
+  const withW=l.filter(x=>x.open&&x.w!=null);
+  const avg=withW.length?Math.round(withW.reduce((s,x)=>s+x.w,0)/withW.length):0;
+  const max=withW.length?Math.max(...withW.map(x=>x.w)):0;
+  $('#stats').innerHTML=
+    `<div class="stat"><b>${l.filter(x=>x.open).length}/${l.length}</b><span>ouvertes</span></div>`+
+    `<div class="stat"><b>${avg} min</b><span>attente moyenne</span></div>`+
+    `<div class="stat"><b>${max} min</b><span>attente max</span></div>`;
+  if(!l.length)return '<div class="msg">Aucune attraction.</div>';
+  return l.map(({a,w,open})=>{
+    let b,sub='';
+    if(!open){b=`<div class="badge x">${a.status==='DOWN'?'Panne':a.status==='REFURBISHMENT'?'Rénov.':'Fermée'}</div>`}
+    else if(w==null){b=`<div class="badge x">Ouverte<small>sans attente</small></div>`}
+    else b=`<div class="badge ${cls(w)}">${w}<small>min</small></div>`;
+    const sr=a.queue&&a.queue.SINGLE_RIDER&&a.queue.SINGLE_RIDER.waitTime;
+    if(open&&sr!=null)sub=`<small>Single rider : ${sr} min</small>`;
+    const pr=a.queue&&a.queue.PAID_RETURN_TIME;
+    if(pr&&pr.state==='AVAILABLE')sub+=` <small>· Premier Access${pr.price?' '+(pr.price.amount/100).toFixed(2)+' €':''}</small>`;
+    return `<div class="row"><div class="n"><div>${esc(a.name)}</div>${sub}</div>${b}</div>`;
+  }).join('');
+}
+
+function renderShows(items,q){
+  const now=new Date();
+  const sh=items.filter(i=>i.entityType==='SHOW'&&i.name.toLowerCase().includes(q));
+  const todayStr=now.toLocaleDateString('fr-CA',{timeZone:'Europe/Paris'});
+  const rows=sh.map(s=>{
+    const ts=(s.showtimes||[]).filter(t=>new Date(t.startTime).toLocaleDateString('fr-CA',{timeZone:'Europe/Paris'})===todayStr)
+      .map(t=>({s:new Date(t.startTime),e:t.endTime?new Date(t.endTime):null})).sort((a,b)=>a.s-b.s);
+    const nxt=ts.find(t=>(t.e||t.s)>now);
+    return{s,ts,nxt};
+  }).filter(x=>x.ts.length||x.s.status==='OPERATING'||x.s.status==='CLOSED');
+  rows.sort((a,b)=>(b.ts.length>0)-(a.ts.length>0)||((a.nxt?a.nxt.s:9e15)-(b.nxt?b.nxt.s:9e15)));
+  const upcoming=rows.filter(x=>x.nxt).length;
+  $('#stats').innerHTML=
+    `<div class="stat"><b>${rows.filter(x=>x.ts.length).length}</b><span>spectacles aujourd'hui</span></div>`+
