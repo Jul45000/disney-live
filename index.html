@@ -319,3 +319,100 @@ $('#sdel').onclick=()=>{delete store.alerts[sheetId];save();$('#sheet').hidden=t
 $('#sok').onclick=()=>{
   const t=parseInt($('#sv').value,10);
   if(isNaN(t)||t
+<0)return;
+  const a=data.find(x=>x.id===sheetId);
+  unlock();
+  try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}
+  store.alerts[sheetId]={t:t,fired:false,name:a?a.name:(store.alerts[sheetId]?store.alerts[sheetId].name:'')};
+  save();$('#sheet').hidden=true;checkAlerts();render();syncCloud(true);
+};
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')$('#sheet').hidden=true};
+
+/* ---------- Écran allumé ---------- */
+async function setWake(on){
+  try{
+    if(on){wake=await navigator.wakeLock.request('screen');wakeOn=true}
+    else{if(wake)await wake.release();wake=null;wakeOn=false}
+  }catch(e){wakeOn=false;alert('Impossible de garder l\'écran allumé sur ce navigateur.')}
+  render();
+}
+
+/* ---------- Notifications écran éteint (Cloudflare + ntfy) ---------- */
+function topic(){
+  if(!store.cfg.topic){
+    const a=new Uint8Array(16);
+    try{crypto.getRandomValues(a)}catch(e){for(let i=0;i<16;i++)a[i]=Math.floor(Math.random()*256)}
+    store.cfg.topic='dlp-'+Array.from(a,x=>(x%36).toString(36)).join('');
+    save();
+  }
+  return store.cfg.topic;
+}
+function cmsg(t){$('#cmsg').textContent=t}
+function cstat(){$('#cst').textContent=store.cfg.url?(cloudOk?'✅ actif':'⚠️ à vérifier'):'(à configurer)'}
+let cloudOk=false,lastSig='',lastAt=0;
+async function cloud(path,body){
+  const r=await fetch(store.cfg.url.replace(/\/+$/,'')+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({topic:topic()},body))});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return r.json();
+}
+async function syncCloud(force){
+  if(!store.cfg.url)return;
+  const al={};
+  Object.keys(store.alerts).forEach(id=>{al[id]={t:store.alerts[id].t,name:store.alerts[id].name}});
+  const sig=JSON.stringify(al);
+  if(!force&&sig===lastSig&&Date.now()-lastAt<30*60000)return;
+  try{
+    const r=await cloud('/sync',{alerts:al});
+    lastSig=sig;lastAt=Date.now();cloudOk=true;
+    cmsg('Service connecté ('+r.count+' alerte'+(r.count>1?'s':'')+' surveillée'+(r.count>1?'s':'')+').');
+  }catch(e){cloudOk=false;cmsg('Service injoignable : '+e.message)}
+  cstat();
+}
+function initCloud(){
+  $('#ctopic').textContent=topic();
+  $('#curl').value=store.cfg.url;
+  cstat();
+  $('#ccopy').onclick=async()=>{
+    try{await navigator.clipboard.writeText(topic());cmsg('Sujet copié.')}
+    catch(e){cmsg('Copie impossible : appuyez longuement sur le sujet pour le copier.')}
+  };
+  $('#csave').onclick=async()=>{
+    const u=$('#curl').value.trim();
+    if(u&&!/^https:\/\//.test(u)){cmsg('L\'adresse doit commencer par https://');return}
+    store.cfg.url=u;save();
+    if(!u){cloudOk=false;cmsg('Service désactivé.');cstat();render();return}
+    await syncCloud(true);render();
+  };
+  $('#ctest').onclick=async()=>{
+    if(!store.cfg.url){cmsg('Enregistrez d\'abord l\'adresse du service.');return}
+    try{await cloud('/test',{});cmsg('Test envoyé : regardez votre téléphone (appli ntfy abonnée au sujet).')}
+    catch(e){cmsg('Échec du test : '+e.message)}
+  };
+}
+
+/* ---------- Événements ---------- */
+document.addEventListener('click',e=>{
+  unlock();
+  const bell=e.target.closest('.bell');
+  if(bell){openSheet(bell.dataset.id);return}
+  const chip=e.target.closest('#mine .chip');
+  if(chip){openSheet(chip.dataset.id);return}
+  if(e.target.closest('#wl'))setWake(!wakeOn);
+});
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');park=b.dataset.park;render();
+});
+document.querySelectorAll('.sub button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.sub button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');view=b.dataset.v;render();
+});
+$('#q').oninput=render;
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden){load();if(wakeOn)setWake(true)}
+});
+initCloud();
+load();setInterval(load,60000);
+</script>
+</body>
+</html>
